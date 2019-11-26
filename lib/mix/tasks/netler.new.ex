@@ -1,7 +1,18 @@
 defmodule Mix.Tasks.Netler.New do
+  @moduledoc """
+  Creates a new embedded .NET project and an Elixir module for communicating with the .NET project
+
+  ## Usage
+
+  ```bash
+  > mix netler.new
+  ```
+  """
+
   use Mix.Task
   alias Netler.Compiler.Dotnet
 
+  @impl true
   def run(_args) do
     dotnet_project =
       Mix.Shell.IO.prompt("Please give your .NET project a name:")

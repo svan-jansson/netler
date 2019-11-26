@@ -1,8 +1,30 @@
 defmodule Mix.Tasks.Compile.Netler do
+  @moduledoc """
+  Compiles all embedded .NET projects listed in `dotnet_projects` in `mix.exs`.
+
+  ## Usage
+
+  In mix.exs:
+
+  ```elixir
+  def project do
+    [
+        app: :my_elixir_application,
+        version: "0.1.0",
+        elixir: "~> 1.9",
+        start_permanent: Mix.env() == :prod,
+        deps: deps(),
+        compilers: Mix.compilers() ++ [:netler],
+        dotnet_projects: [:my_dotnet_project]
+    ]
+  end
+  ```
+  """
   use Mix.Task
 
   alias Netler.Compiler.Dotnet
 
+  @impl true
   def run(_args) do
     File.mkdir_p!("priv")
     config = Mix.Project.config()
