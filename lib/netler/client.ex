@@ -8,13 +8,27 @@ defmodule Netler.Client do
 
   require Logger
 
-  def start_link(_opts) do
+  @invoke_timeout 60_000
+
+  def child_spec(opts) do
+    name = Keyword.get(opts, :name)
+
+    %{
+      id: name,
+      start: {__MODULE__, :start_link, [name]},
+      restart: :permanent,
+      shutdown: 5000,
+      type: :worker
+    }
+  end
+
+  def start_link(name) do
     state = %{
       socket: nil,
       port: Transport.next_available_port()
     }
 
-    GenServer.start_link(__MODULE__, state, name: __MODULE__)
+    GenServer.start_link(__MODULE__, state, name: name)
   end
 
   def init(state = %{port: port}) do
@@ -22,26 +36,26 @@ defmodule Netler.Client do
     {:ok, %{state | socket: socket}}
   end
 
-  def invoke(method_name, method_params) do
-    message =
-      Message.encode(%{
-        name: method_name,
-        params: method_params
-      })
+  def invoke(project_name, method_name, parameters) do
+    envelope = %{
+      name: method_name,
+      params: parameters
+    }
 
-    response = GenServer.call(__MODULE__, {:invoke, message})
-
-    Message.decode(response)
+    with {:ok, message} <- Message.encode(envelope),
+         {:ok, response} <- GenServer.call(project_name, {:invoke, message}, @invoke_timeout) do
+      Message.decode(response)
+    end
   end
 
-  def handle_call({:invoke, message}, _from, state = %{socket: socket}) do
+  def handle_call({:invoke, message}, _from, state = %{socket: socket}) when socket != nil do
     response =
       with :ok <- Transport.send(socket, message),
            {:ok, remote_response} = Transport.receive(socket) do
-        remote_response
+        {:ok, remote_response}
       else
-        {:error, error_details} -> error_details
-        unknown_error -> unknown_error
+        {:error, error_details} -> {:error, error_details}
+        unknown_error -> {:error, unknown_error}
       end
 
     {:reply, response, state}
