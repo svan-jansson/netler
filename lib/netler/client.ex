@@ -89,7 +89,7 @@ defmodule Netler.Client do
     full_path = Path.join(bin_path, project_file)
 
     Task.Supervisor.start_child(Netler.DotnetProcessSupervisor, fn ->
-      System.cmd("dotnet", [full_path, "#{port}"])
+      System.cmd("dotnet", [full_path, "#{port}"], cd: bin_path)
     end)
   end
 end

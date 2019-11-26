@@ -21,6 +21,6 @@ defmodule Netler.Compiler.Dotnet do
   end
 
   def project_path(project_name), do: Path.expand("dotnet/#{project_name}")
-  def project_binary_path(project_name), do: Path.expand("dotnet/#{project_name}/bin")
+  def project_binary_path(project_name), do: Path.expand("priv/#{project_name}")
   def netler_source_path(), do: Path.join(Mix.Project.deps_path(), "netler/dotnet")
 end
