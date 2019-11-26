@@ -4,6 +4,8 @@ defmodule Mix.Tasks.Compile.Netler do
   alias Netler.Compiler.Dotnet
 
   def run(_args) do
+    File.mkdir_p!("priv")
+
     dotnet_projects =
       Mix.Project.config()
       |> Keyword.get(:dotnet_projects, [])
