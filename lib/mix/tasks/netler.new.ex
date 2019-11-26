@@ -18,7 +18,7 @@ defmodule Mix.Tasks.Netler.New do
 
         app = Mix.Project.config() |> Keyword.get(:app)
         application_name = app |> Atom.to_string()
-        lib_path = "lib/#{application_name}"
+        lib_path = Path.expand("lib/#{application_name}")
 
         create_source_files_from_templates(application_name, lib_path, project_path, project_name)
 
