@@ -33,8 +33,8 @@ defmodule Netler.Client do
   end
 
   def init(state = %{port: port, dotnet_project: dotnet_project}) do
-    socket = connect(port)
     start_dotnet_server(dotnet_project, port)
+    socket = connect(port)
     {:ok, %{state | socket: socket}}
   end
 
