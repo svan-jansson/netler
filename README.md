@@ -1,6 +1,6 @@
 # Netler
 
-Enables language interopablility between Elixir and .NET. Heavily inspired by Rustlers convenience.
+Enables language interopablility between Elixir and .NET. Heavily inspired by Rustler's convenient workflows. Full docs are available on [https://hexdocs.pm/netler/](https://hexdocs.pm/netler/).
 
 ## Getting Started
 
