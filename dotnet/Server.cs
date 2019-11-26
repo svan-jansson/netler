@@ -52,15 +52,15 @@ namespace Netler
                 }
                 catch (ApplicationException ex)
                 {
-                    respond(KeyValuePair.Create("Error.Application", ex.Message));
+                    respond(new string[] { "Error.Application", ex.Message });
                 }
                 catch (MethodAccessException ex)
                 {
-                    respond(KeyValuePair.Create("Error.MethodNotFound", ex.Message));
+                    respond(new string[] { "Error.MethodNotFound", ex.Message });
                 }
                 catch (IOException ex)
                 {
-                    respond(KeyValuePair.Create("Error.Stream", ex.Message));
+                    respond(new string[] { "Error.Stream", ex.Message });
                 }
             }
         }
