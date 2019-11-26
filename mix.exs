@@ -4,14 +4,18 @@ defmodule Netler.MixProject do
   def project do
     [
       app: :netler,
+      name: "Netler",
+      source_url: "https://github.com/svan-jansson/netler",
       version: "0.1.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
-      deps: deps()
+      deps: deps(),
+      description: description(),
+      package: package(),
+      docs: docs()
     ]
   end
 
-  # Run "mix help compile.app" to learn about applications.
   def application do
     [
       extra_applications: [:logger],
@@ -19,10 +23,33 @@ defmodule Netler.MixProject do
     ]
   end
 
-  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:ex_doc, "~> 0.21", only: :dev, runtime: false},
       {:msgpax, "~> 2.0"}
+    ]
+  end
+
+  defp description do
+    """
+    Enables language interopablility between Elixir and .NET
+    """
+  end
+
+  defp package do
+    [
+      maintainers: ["Svan Jansson"],
+      licenses: ["MIT"],
+      links: %{Github: "https://github.com/svan-jansson/netler"},
+      files: ~w(lib dotnet/*.cs dotnet/*.csproj .formatter.exs mix.exs README* readme* LICENSE*
+                license* CHANGELOG* changelog* src)
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      extras: ["README.md"]
     ]
   end
 end
