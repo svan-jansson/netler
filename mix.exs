@@ -41,8 +41,7 @@ defmodule Netler.MixProject do
       maintainers: ["Svan Jansson"],
       licenses: ["MIT"],
       links: %{Github: "https://github.com/svan-jansson/netler"},
-      files: ~w(lib dotnet/*.cs dotnet/*.csproj .formatter.exs mix.exs README* readme* LICENSE*
-                license* CHANGELOG* changelog* src)
+      files: ~w(lib dotnet/*.cs dotnet/*.csproj .formatter.exs mix.exs README* LICENSE*)
     ]
   end
 
