@@ -13,7 +13,7 @@ defmodule Mix.Tasks.Netler.New do
 
       project_name ->
         project_name = project_name |> Atom.to_string()
-        project_path = "priv/dotnet/#{project_name}"
+        project_path = "dotnet/#{project_name}"
         create_dotnet_project(project_path, project_name)
 
         netler_source_path = Path.join(Mix.Project.deps_path(), "netler/dotnet")
@@ -26,7 +26,7 @@ defmodule Mix.Tasks.Netler.New do
   defp build_netler_dll(netler_source_path, project_path) do
     System.cmd(
       "dotnet",
-      ["#{netler_source_path}/Netler.csproj", "--output", "#{project_path}/netler"],
+      ["build", "#{netler_source_path}/Netler.csproj", "--output", "#{project_path}/netler"],
       into: IO.stream(:stdio, :line)
     )
   end
