@@ -4,21 +4,18 @@ defmodule Mix.Tasks.Compile.Netler do
   alias Netler.Compiler.Dotnet
 
   def run(_args) do
-    project_name =
+    dotnet_projects =
       Mix.Project.config()
-      |> Keyword.get(:dotnet_project)
+      |> Keyword.get(:dotnet_project, [])
 
-    case project_name do
-      nil ->
-        Mix.Shell.IO.info([:red, "Project keyword `dotnet_project` missing in mix.exs"])
-        :error
+    dotnet_projects
+    |> Enum.each(fn project_name ->
+      project_name = project_name |> Atom.to_string()
+      project_path = Dotnet.project_path(project_name)
+      Dotnet.compile_netler("#{project_path}/netler")
+      Dotnet.compile_project(project_name)
+    end)
 
-      project_name ->
-        project_name = project_name |> Atom.to_string()
-        project_path = Dotnet.project_path(project_name)
-        Dotnet.compile_netler("#{project_path}/netler")
-        Dotnet.compile_project(project_name)
-        :ok
-    end
+    :ok
   end
 end

@@ -18,6 +18,12 @@ defmodule Mix.Tasks.Netler.New do
         create_dotnet_project(project_path, project_name)
         Dotnet.compile_netler("#{project_path}/netler")
         Mix.Shell.IO.info([:green, "Created new .NET project in #{project_path}"])
+
+        Mix.Shell.IO.info([
+          :yellow,
+          "Remeber to add :#{project_name} to the dotnet_projects list in your application's mix.exs"
+        ])
+
         :ok
     end
   end
