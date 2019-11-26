@@ -6,7 +6,7 @@ defmodule Mix.Tasks.Compile.Netler do
   def run(_args) do
     dotnet_projects =
       Mix.Project.config()
-      |> Keyword.get(:dotnet_project, [])
+      |> Keyword.get(:dotnet_projects, [])
 
     dotnet_projects
     |> Enum.each(fn project_name ->
