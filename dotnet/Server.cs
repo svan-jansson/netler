@@ -9,6 +9,9 @@ namespace Netler
 {
     public static class Server
     {
+        public const int ATOM_OK = 1;
+        public const int ATOM_ERROR = 0;
+
         public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
             var port = Convert.ToInt32(args[0]);
@@ -28,11 +31,11 @@ namespace Netler
             {
                 while (!stream.DataAvailable) ;
 
-                Action<object> respond = (response) =>
+                Action<int, object> respond = (atom, response) =>
                     {
                         try
                         {
-                            var responseBytes = Message.Encode(response);
+                            var responseBytes = Message.Encode(atom, response);
                             stream.Write(responseBytes, 0, responseBytes.Length);
                         }
                         catch (Exception ex)
@@ -52,27 +55,27 @@ namespace Netler
                 }
                 catch (ApplicationException ex)
                 {
-                    respond(new string[] { "Error.Application", ex.Message });
+                    respond(ATOM_ERROR, ex.Message);
                 }
                 catch (MethodAccessException ex)
                 {
-                    respond(new string[] { "Error.MethodNotFound", ex.Message });
+                    respond(ATOM_ERROR, ex.Message);
                 }
                 catch (IOException ex)
                 {
-                    respond(new string[] { "Error.Stream", ex.Message });
+                    respond(ATOM_ERROR, ex.Message);
                 }
             }
         }
 
-        private static void Invoke((Func<object[], object> method, object[] parameters) invokation, Action<object> respond)
+        private static void Invoke((Func<object[], object> method, object[] parameters) invokation, Action<int, object> respond)
         {
             try
             {
                 var parameters = new List<object>(invokation.parameters);
                 parameters.Add(respond);
                 var result = invokation.method(parameters.ToArray());
-                respond(result);
+                respond(ATOM_OK, result);
             }
             catch (IOException ex)
             {

@@ -9,7 +9,7 @@ Enables language interopablility between Elixir and .NET. Heavily inspired by Ru
 ```elixir
 defp deps do
     [
-        {:netler, "~> 0.1.0"}
+        {:netler, "~> 0.1.1"}
     ]
 end
 ```
