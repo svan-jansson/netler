@@ -7,25 +7,25 @@ defmodule Netler.Compiler.Dotnet do
     )
   end
 
-  def compile_project(project_name) do
+  def compile_project(dotnet_project) do
     System.cmd(
       "dotnet",
       [
         "build",
-        "#{project_path(project_name)}/#{Macro.camelize(project_name)}.csproj",
+        "#{project_path(dotnet_project)}/#{Macro.camelize(dotnet_project)}.csproj",
         "--output",
-        project_build_binary_path(project_name)
+        project_build_binary_path(dotnet_project)
       ],
       into: IO.stream(:stdio, :line)
     )
   end
 
-  def project_path(project_name), do: Path.expand("dotnet/#{project_name}")
-  def project_build_binary_path(project_name), do: Path.expand("priv/#{project_name}")
+  def project_path(dotnet_project), do: Path.expand("dotnet/#{dotnet_project}")
+  def project_build_binary_path(dotnet_project), do: Path.expand("priv/#{dotnet_project}")
   def netler_source_path(), do: Path.join(Mix.Project.deps_path(), "netler/dotnet")
 
-  def runtime_binary_path(project_name) do
+  def runtime_binary_path(dotnet_project) do
     app = Mix.Project.config() |> Keyword.get(:app)
-    Application.app_dir(app, "priv/#{project_name}")
+    Application.app_dir(app, "priv/#{dotnet_project}")
   end
 end

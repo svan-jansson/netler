@@ -11,41 +11,41 @@ defmodule Netler.Client do
   @invoke_timeout 60_000
 
   def child_spec(opts) do
-    project_name = Keyword.get(opts, :project_name)
+    dotnet_project = Keyword.get(opts, :dotnet_project)
 
     %{
-      id: project_name,
-      start: {__MODULE__, :start_link, [project_name]},
+      id: dotnet_project,
+      start: {__MODULE__, :start_link, [dotnet_project]},
       restart: :permanent,
       shutdown: 5000,
       type: :worker
     }
   end
 
-  def start_link(project_name) do
+  def start_link(dotnet_project) do
     state = %{
-      project_name: project_name,
+      dotnet_project: dotnet_project,
       socket: nil,
       port: Transport.next_available_port()
     }
 
-    GenServer.start_link(__MODULE__, state, name: project_name)
+    GenServer.start_link(__MODULE__, state, name: dotnet_project)
   end
 
-  def init(state = %{port: port, project_name: project_name}) do
+  def init(state = %{port: port, dotnet_project: dotnet_project}) do
     socket = connect(port)
-    start_dotnet_server(project_name, port)
+    start_dotnet_server(dotnet_project, port)
     {:ok, %{state | socket: socket}}
   end
 
-  def invoke(project_name, method_name, parameters) do
+  def invoke(dotnet_project, method_name, parameters) do
     envelope = %{
       name: method_name,
       params: parameters
     }
 
     with {:ok, message} <- Message.encode(envelope),
-         {:ok, response} <- GenServer.call(project_name, {:invoke, message}, @invoke_timeout) do
+         {:ok, response} <- GenServer.call(dotnet_project, {:invoke, message}, @invoke_timeout) do
       Message.decode(response)
     end
   end
@@ -82,10 +82,10 @@ defmodule Netler.Client do
     end
   end
 
-  defp start_dotnet_server(project_name, port) do
-    project_name = Atom.to_string(project_name)
-    bin_path = Netler.Compiler.Dotnet.runtime_binary_path(project_name)
-    project_file = Macro.camelize(project_name) <> ".dll"
+  defp start_dotnet_server(dotnet_project, port) do
+    dotnet_project = Atom.to_string(dotnet_project)
+    bin_path = Netler.Compiler.Dotnet.runtime_binary_path(dotnet_project)
+    project_file = Macro.camelize(dotnet_project) <> ".dll"
     full_path = Path.join(bin_path, project_file)
 
     Task.Supervisor.start_child(Netler.DotnetProcessSupervisor, fn ->

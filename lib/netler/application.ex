@@ -9,8 +9,8 @@ defmodule Netler.Application do
       |> Keyword.get(:dotnet_projects, [])
 
     children =
-      Enum.map(dotnet_projects, fn project_name ->
-        Netler.Client.child_spec(project_name: project_name)
+      Enum.map(dotnet_projects, fn dotnet_project ->
+        Netler.Client.child_spec(dotnet_project: dotnet_project)
       end)
 
     children = [{Task.Supervisor, name: Netler.DotnetProcessSupervisor} | children]

@@ -12,11 +12,11 @@ defmodule Mix.Tasks.Compile.Netler do
       |> Keyword.get(:dotnet_projects, [])
 
     dotnet_projects
-    |> Enum.each(fn project_name ->
-      project_name = project_name |> Atom.to_string()
-      project_path = Dotnet.project_path(project_name)
+    |> Enum.each(fn dotnet_project ->
+      dotnet_project = dotnet_project |> Atom.to_string()
+      project_path = Dotnet.project_path(dotnet_project)
       Dotnet.compile_netler("#{project_path}/netler")
-      Dotnet.compile_project(project_name)
+      Dotnet.compile_project(dotnet_project)
     end)
 
     symlink_or_copy(

@@ -3,56 +3,66 @@ defmodule Mix.Tasks.Netler.New do
   alias Netler.Compiler.Dotnet
 
   def run(_args) do
-    project_name =
+    dotnet_project =
       Mix.Shell.IO.prompt("Please give your .NET project a name:")
       |> String.trim()
       |> Macro.underscore()
 
-    case project_name do
+    case dotnet_project do
       "" ->
         log_error("Aborting: No project name given.")
         :error
 
-      project_name ->
-        project_path = Dotnet.project_path(project_name)
+      dotnet_project ->
+        project_path = Dotnet.project_path(dotnet_project)
 
         app = Mix.Project.config() |> Keyword.get(:app)
         application_name = app |> Atom.to_string()
         lib_path = Path.expand("lib/#{application_name}")
 
-        create_source_files_from_templates(application_name, lib_path, project_path, project_name)
+        create_source_files_from_templates(
+          application_name,
+          lib_path,
+          project_path,
+          dotnet_project
+        )
 
         Dotnet.compile_netler("#{project_path}/netler")
 
         log_info(
-          "Done! Remeber to add :#{project_name} to the dotnet_projects list in your application's mix.exs"
+          "Done! Remeber to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
         )
 
         :ok
     end
   end
 
-  defp create_source_files_from_templates(application_name, lib_path, project_path, project_name) do
+  defp create_source_files_from_templates(
+         application_name,
+         lib_path,
+         project_path,
+         dotnet_project
+       ) do
     File.mkdir_p!(project_path)
-    csproj_file = "#{project_path}/#{Macro.camelize(project_name)}.csproj"
+    csproj_file = "#{project_path}/#{Macro.camelize(dotnet_project)}.csproj"
     program_file = "#{project_path}/Program.cs"
 
     File.write!(csproj_file, csproj_template())
     log_info("Created #{csproj_file}")
 
-    File.write!(program_file, program_template(project_name))
+    File.write!(program_file, program_template(dotnet_project))
     log_info("Created #{program_file}")
 
     File.mkdir_p!(lib_path)
-    ex_file = "#{lib_path}/#{project_name}.ex"
-    File.write!(ex_file, elixir_module_template(application_name, project_name))
+    ex_file = "#{lib_path}/#{dotnet_project}.ex"
+    File.write!(ex_file, elixir_module_template(application_name, dotnet_project))
     log_info("Created #{ex_file}")
   end
 
-  defp elixir_module_template(application_name, project_name) do
+  defp elixir_module_template(application_name, dotnet_project) do
     """
-    defmodule #{Macro.camelize(application_name)}.#{Macro.camelize(project_name)} do
-      use Netler, dotnet_project: :#{project_name}
+    defmodule #{Macro.camelize(application_name)}.#{Macro.camelize(dotnet_project)} do
+      use Netler, dotnet_project: :#{dotnet_project}
 
       def add(a, b), do: invoke("Add", [a, b])
     end
@@ -78,13 +88,13 @@ defmodule Mix.Tasks.Netler.New do
     """
   end
 
-  defp program_template(project_name) do
+  defp program_template(dotnet_project) do
     """
     using System;
     using System.Collections.Generic;
     using Netler;
 
-    namespace #{Macro.camelize(project_name)}
+    namespace #{Macro.camelize(dotnet_project)}
     {
         class Program
         {
