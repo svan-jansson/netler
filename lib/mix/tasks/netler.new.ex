@@ -14,7 +14,6 @@ defmodule Mix.Tasks.Netler.New do
         :error
 
       project_name ->
-        project_name = project_name |> Atom.to_string()
         project_path = Dotnet.project_path(project_name)
         create_dotnet_project(project_path, project_name)
         Dotnet.compile_netler("#{project_path}/netler")
