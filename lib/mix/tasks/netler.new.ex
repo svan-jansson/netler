@@ -1,34 +1,26 @@
 defmodule Mix.Tasks.Netler.New do
   use Mix.Task
+  alias Netler.Compiler.Dotnet
 
   def run(_args) do
     project_name =
-      Mix.Project.config()
-      |> Keyword.get(:dotnet_project)
+      Mix.Shell.IO.prompt("Please give your .NET project a name:")
+      |> String.trim()
+      |> Macro.underscore()
 
     case project_name do
-      nil ->
-        Mix.Shell.IO.info([:red, "Project keyword `dotnet_project` missing in mix.exs"])
+      "" ->
+        Mix.Shell.IO.info([:red, "Aborting: No project name given."])
         :error
 
       project_name ->
         project_name = project_name |> Atom.to_string()
-        project_path = "dotnet/#{project_name}"
+        project_path = Dotnet.project_path(project_name)
         create_dotnet_project(project_path, project_name)
-
-        netler_source_path = Path.join(Mix.Project.deps_path(), "netler/dotnet")
-        build_netler_dll(netler_source_path, project_path)
+        Dotnet.compile_netler("#{project_path}/netler")
         Mix.Shell.IO.info([:green, "Created new .NET project in #{project_path}"])
         :ok
     end
-  end
-
-  defp build_netler_dll(netler_source_path, project_path) do
-    System.cmd(
-      "dotnet",
-      ["build", "#{netler_source_path}/Netler.csproj", "--output", "#{project_path}/netler"],
-      into: IO.stream(:stdio, :line)
-    )
   end
 
   defp create_dotnet_project(project_path, project_name) do
