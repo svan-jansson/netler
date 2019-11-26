@@ -6,10 +6,12 @@ defmodule Netler.Message do
 
   @doc "Decodes a message after receiving it from a .NET application"
   def decode(data) do
-    with {:ok, [atom | message]} <- Msgpax.unpack(data) do
-      case atom do
-        1 -> {:ok, message}
-        0 -> {:error, message}
+    with {:ok, decoded} <- Msgpax.unpack(data) do
+      case decoded do
+        [1 | [scalar]] -> {:ok, scalar}
+        [0 | [scalar]] -> {:error, scalar}
+        [1 | list] -> {:ok, list}
+        [0 | list] -> {:error, list}
       end
     end
   end
