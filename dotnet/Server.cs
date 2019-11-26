@@ -9,8 +9,9 @@ namespace Netler
 {
     public static class Server
     {
-        public static Thread Bind(IDictionary<string, Func<object[], object>> methods, int port)
+        public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
+            var port = Convert.ToInt32(args[0]);
             var worker = new Thread(() => MessageLoop(methods, port));
             worker.Start();
             return worker;
