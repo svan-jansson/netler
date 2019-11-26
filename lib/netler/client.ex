@@ -84,7 +84,7 @@ defmodule Netler.Client do
 
   defp start_dotnet_server(project_name, port) do
     project_name = Atom.to_string(project_name)
-    bin_path = Netler.Compiler.Dotnet.project_binary_path(project_name)
+    bin_path = Netler.Compiler.Dotnet.runtime_binary_path(project_name)
     project_file = Macro.camelize(project_name) <> ".dll"
     full_path = Path.join(bin_path, project_file)
 
