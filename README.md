@@ -14,7 +14,7 @@ defp deps do
 end
 ```
 
-### 2. Run Mix Task to Generate .NET Project and Elixir Module
+### 2. Run a Mix Task to Generate .NET Project and Elixir Module
 
 ```bash
 > mix netler.new
@@ -124,7 +124,7 @@ defmodule MyElixirApplication.MyDotnetProject do
   # This links the module to a specific .NET project
   use Netler, dotnet_project: :my_dotnet_project
 
-  # Use invoke/2 or invoke!/1 to route a message to
+  # Use invoke/2 or invoke!/2 to route a message to
   # an exported .NET method
   def add(a, b), do: invoke("Add", [a, b])
 end
