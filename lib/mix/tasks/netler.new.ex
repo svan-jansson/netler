@@ -45,7 +45,7 @@ defmodule Mix.Tasks.Netler.New do
 
     File.mkdir_p!(lib_path)
     ex_file = "#{lib_path}/#{project_name}.ex"
-    File.write!(program_file, elixir_module_template(application_name, project_name))
+    File.write!(ex_file, elixir_module_template(application_name, project_name))
     log_info("Created #{ex_file}")
   end
 
