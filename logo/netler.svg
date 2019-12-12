@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg8"
+   version="1.1"
+   viewBox="0 0 33.866666 33.866668"
+   height="128"
+   width="128">
+  <defs
+     id="defs2" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     transform="translate(0,-263.13332)"
+     id="layer1">
+    <rect
+       y="272.98138"
+       x="25.153929"
+       height="15.506327"
+       width="3.0479999"
+       id="rect3828-1"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.42967689" />
+    <rect
+       y="273.00052"
+       x="5.8843336"
+       height="15.506327"
+       width="3.0479999"
+       id="rect3828"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.42967689" />
+    <rect
+       transform="rotate(135)"
+       y="-221.97661"
+       x="184.42648"
+       height="23.259491"
+       width="3.0479999"
+       id="rect3828-3"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.52624458" />
+    <ellipse
+       ry="5.2451644"
+       rx="5.1625633"
+       cy="270.44009"
+       cx="7.367537"
+       id="path12"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.36470085" />
+    <ellipse
+       ry="5.2451644"
+       rx="5.1625633"
+       cy="289.64523"
+       cx="7.3913755"
+       id="path12-5-3"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.36470085" />
+    <ellipse
+       ry="5.2451644"
+       rx="5.1625633"
+       cy="270.42096"
+       cx="26.637131"
+       id="path12-9"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.36470088" />
+    <ellipse
+       ry="5.2451644"
+       rx="5.1625633"
+       cy="289.6261"
+       cx="26.660969"
+       id="path12-5-3-2"
+       style="fill:#aa00d4;fill-opacity:1;stroke-width:0.36470088" />
+    <g
+       transform="translate(-2.9510475,-3.7504649)"
+       id="g3932">
+      <g
+         id="g3936" />
+    </g>
+    <ellipse
+       ry="2.7754643"
+       rx="2.917284"
+       cy="289.67398"
+       cx="26.661985"
+       id="path12-5-3-2-6-0"
+       style="fill:#660080;fill-opacity:1;stroke-width:0.199426" />
+  </g>
+</svg>

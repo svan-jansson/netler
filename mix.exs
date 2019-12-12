@@ -49,7 +49,8 @@ defmodule Netler.MixProject do
   defp docs do
     [
       main: "readme",
-      extras: ["README.md"]
+      extras: ["README.md"],
+      logo: "logo/netler.svg.png"
     ]
   end
 end
