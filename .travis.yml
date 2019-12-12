@@ -1,0 +1,18 @@
+language: elixir
+
+install:
+  - mix local.hex --force
+
+jobs:
+  include:
+    - stage: test
+      script:
+        - mix deps.get
+        - mix compile --force --warnings-as-errors
+        - mix credo --strict
+        - mix test
+    - stage: deploy
+      if: branch = master AND type = push AND fork = false
+      script:
+        - mix deps.get
+        - mix hex.publish --yes

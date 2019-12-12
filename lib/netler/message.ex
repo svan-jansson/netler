@@ -12,6 +12,7 @@ defmodule Netler.Message do
         [0 | [scalar]] -> {:error, scalar}
         [1 | list] -> {:ok, list}
         [0 | list] -> {:error, list}
+        _ -> {:error, :invalid_message_format}
       end
     end
   end
