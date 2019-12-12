@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.com/svan-jansson/netler.svg?branch=master)](https://travis-ci.com/svan-jansson/netler)
+[![Hex pm](https://img.shields.io/hexpm/v/netler.svg?style=flat)](https://hex.pm/packages/netler)
+[![Hex pm](https://img.shields.io/hexpm/dt/netler.svg?style=flat)](https://hex.pm/packages/netler)
+
 # Netler
 
 Enables language interopablility between Elixir and .NET. Heavily inspired by Rustler's convenient workflows. Full docs are available on [https://hexdocs.pm/netler/](https://hexdocs.pm/netler/).
