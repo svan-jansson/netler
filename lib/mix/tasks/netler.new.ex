@@ -80,7 +80,7 @@ defmodule Mix.Tasks.Netler.New do
     """
   end
 
-  defp csproj_template() do
+  defp csproj_template do
     """
     <Project Sdk="Microsoft.NET.Sdk">
 

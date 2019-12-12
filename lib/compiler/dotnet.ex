@@ -31,7 +31,7 @@ defmodule Netler.Compiler.Dotnet do
   def project_build_binary_path(dotnet_project), do: Path.expand("priv/#{dotnet_project}")
 
   @doc "Returns the Netler source code directory"
-  def netler_source_path(), do: Path.join(Mix.Project.deps_path(), "netler/dotnet")
+  def netler_source_path, do: Path.join(Mix.Project.deps_path(), "netler/dotnet")
 
   @doc "Returns the path to where the an embedded .NET project's binaries are located during runtime"
   def runtime_binary_path(dotnet_project) do

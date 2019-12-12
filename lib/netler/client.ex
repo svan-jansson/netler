@@ -3,8 +3,7 @@ defmodule Netler.Client do
 
   use GenServer
 
-  alias Netler.Transport
-  alias Netler.Message
+  alias Netler.{Compiler, Message, Transport}
 
   require Logger
 
@@ -53,7 +52,7 @@ defmodule Netler.Client do
   def handle_call({:invoke, message}, _from, state = %{socket: socket}) when socket != nil do
     response =
       with :ok <- Transport.send(socket, message),
-           {:ok, remote_response} = Transport.receive(socket) do
+           {:ok, remote_response} <- Transport.receive(socket) do
         {:ok, remote_response}
       else
         {:error, error_details} -> {:error, error_details}
@@ -73,9 +72,10 @@ defmodule Netler.Client do
   end
 
   defp connect(port) do
-    with {:ok, socket} <- Transport.connect(port) do
-      socket
-    else
+    case Transport.connect(port) do
+      {:ok, socket} ->
+        socket
+
       {:error, _reason} ->
         Process.send_after(self(), :connect, 5_000)
         nil
@@ -84,7 +84,7 @@ defmodule Netler.Client do
 
   defp start_dotnet_server(dotnet_project, port) do
     dotnet_project = Atom.to_string(dotnet_project)
-    bin_path = Netler.Compiler.Dotnet.runtime_binary_path(dotnet_project)
+    bin_path = Compiler.Dotnet.runtime_binary_path(dotnet_project)
     project_file = Macro.camelize(dotnet_project) <> ".dll"
     full_path = Path.join(bin_path, project_file)
 
