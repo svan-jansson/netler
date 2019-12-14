@@ -78,6 +78,10 @@ defmodule Netler.Client do
     {:noreply, %{state | socket: socket}}
   end
 
+  def handle_info({:EXIT, _pid, _reason}, state) do
+    {:noreply, state}
+  end
+
   defp connect(port) do
     case Transport.connect(port) do
       {:ok, socket} ->
