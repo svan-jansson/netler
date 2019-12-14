@@ -12,14 +12,13 @@ namespace Netler
         public const int ATOM_OK = 1;
         public const int ATOM_ERROR = 0;
         private const byte SIGTERM = 15;
-        private static Thread _worker;
 
         public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
             var port = Convert.ToInt32(args[0]);
-            _worker = new Thread(() => MessageLoop(methods, port));
-            _worker.Start();
-            return _worker;
+            var worker = new Thread(() => MessageLoop(methods, port));
+            worker.Start();
+            return worker;
         }
 
         private static void MessageLoop(IDictionary<string, Func<object[], object>> methods, int port)
@@ -29,7 +28,8 @@ namespace Netler
 
             var client = listener.AcceptTcpClient();
             var stream = client.GetStream();
-            while (true)
+            var terminated = false;
+            while (!terminated)
             {
                 while (!stream.DataAvailable) ;
 
@@ -51,7 +51,7 @@ namespace Netler
                     stream.Read(incomingBytes, 0, incomingBytes.Length);
                     if (incomingBytes.Length == 1 && incomingBytes[0] == SIGTERM)
                     {
-                        _worker.Abort();
+                        terminated = true;
                         break;
                     }
 
@@ -73,6 +73,8 @@ namespace Netler
                     respond(ATOM_ERROR, ex.Message);
                 }
             }
+
+            listener.Stop();
         }
 
         private static void Invoke((Func<object[], object> method, object[] parameters) invokation, Action<int, object> respond)

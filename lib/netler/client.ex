@@ -8,7 +8,7 @@ defmodule Netler.Client do
   require Logger
 
   @invoke_timeout 60_000
-  @sigterm 15
+  @sigterm [15]
 
   def child_spec(opts) do
     dotnet_project = Keyword.get(opts, :dotnet_project)
