@@ -78,7 +78,7 @@ defmodule Netler.Client do
     {:noreply, %{state | socket: socket}}
   end
 
-  def handle_info({:EXIT, _pid, _reason}, state) do
+  def handle_info({:EXIT, _pid, reason}, state) do
     {:stop, reason, state}
   end
 
