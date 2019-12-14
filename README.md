@@ -12,6 +12,8 @@ Enables language interopablility between Elixir and .NET. Heavily inspired by Ru
 
 ## Getting Started
 
+Before continuing, ensure that the [.NET Core SDK](https://dotnet.microsoft.com/download) is installed on the machine.
+
 ### 1. Add Netler to Your Dependencies
 
 ```elixir
