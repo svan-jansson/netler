@@ -8,6 +8,7 @@ defmodule Netler.Client do
   require Logger
 
   @invoke_timeout 60_000
+  @sigterm 15
 
   def child_spec(opts) do
     dotnet_project = Keyword.get(opts, :dotnet_project)
@@ -32,9 +33,15 @@ defmodule Netler.Client do
   end
 
   def init(state = %{port: port, dotnet_project: dotnet_project}) do
+    Process.flag(:trap_exit, true)
     start_dotnet_server(dotnet_project, port)
     socket = connect(port)
     {:ok, %{state | socket: socket}}
+  end
+
+  def terminate(_reason, _state = %{socket: socket}) do
+    Transport.send(socket, @sigterm)
+    :normal
   end
 
   def invoke(dotnet_project, method_name, parameters) do

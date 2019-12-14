@@ -11,13 +11,15 @@ namespace Netler
     {
         public const int ATOM_OK = 1;
         public const int ATOM_ERROR = 0;
+        private const byte SIGTERM = 15;
+        private static Thread _worker;
 
         public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
             var port = Convert.ToInt32(args[0]);
-            var worker = new Thread(() => MessageLoop(methods, port));
-            worker.Start();
-            return worker;
+            _worker = new Thread(() => MessageLoop(methods, port));
+            _worker.Start();
+            return _worker;
         }
 
         private static void MessageLoop(IDictionary<string, Func<object[], object>> methods, int port)
@@ -47,6 +49,11 @@ namespace Netler
                 {
                     var incomingBytes = new Byte[client.Available];
                     stream.Read(incomingBytes, 0, incomingBytes.Length);
+                    if (incomingBytes.Length == 1 && incomingBytes[0] == SIGTERM)
+                    {
+                        _worker.Abort();
+                        break;
+                    }
 
                     var signature = Message.Decode(incomingBytes);
                     var method = MapToMethod(methods, signature);
