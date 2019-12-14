@@ -42,7 +42,10 @@ namespace Netler
             var terminated = false;
             while (!terminated)
             {
-                while (!stream.DataAvailable) ;
+                while (!stream.DataAvailable)
+                {
+                    Thread.Sleep(0);
+                }
 
                 Action<int, object> respond = (atom, response) =>
                     {
