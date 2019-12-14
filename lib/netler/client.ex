@@ -32,7 +32,7 @@ defmodule Netler.Client do
     GenServer.start_link(__MODULE__, state, name: dotnet_project)
   end
 
-  def init(state = %{port: port, dotnet_project: dotnet_project}) do
+  def init(state = %{dotnet_project: dotnet_project}) do
     Process.flag(:trap_exit, true)
     port = Transport.next_available_port()
     start_dotnet_server(dotnet_project, port)
