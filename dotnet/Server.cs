@@ -15,7 +15,7 @@ namespace Netler
         public const int ATOM_ERROR = 0;
         private const byte SIGTERM = 15;
 
-        public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
+        public static void Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
             var port = Convert.ToInt32(args[0]);
             var clientPid = Convert.ToInt32(args[1]);
@@ -27,24 +27,23 @@ namespace Netler
                 }
                 Environment.Exit(0);
             });
-            var worker = new Thread(() => MessageLoop(methods, port));
-            worker.Start();
-            return worker;
+
+            Task.Run(() => MessageLoop(methods, port)).GetAwaiter().GetResult();
         }
 
-        private static void MessageLoop(IDictionary<string, Func<object[], object>> methods, int port)
+        private static async Task MessageLoop(IDictionary<string, Func<object[], object>> methods, int port)
         {
             var listener = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
             listener.Start();
 
-            var client = listener.AcceptTcpClient();
+            var client = await listener.AcceptTcpClientAsync();
             var stream = client.GetStream();
             var terminated = false;
             while (!terminated)
             {
                 while (!stream.DataAvailable)
                 {
-                    Thread.Sleep(0);
+                    await Task.Delay(0);
                 }
 
                 Action<int, object> respond = (atom, response) =>
