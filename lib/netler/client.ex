@@ -88,7 +88,7 @@ defmodule Netler.Client do
         socket
 
       {:error, _reason} ->
-        Process.send_after(self(), :connect, 5_000)
+        Process.send_after(self(), :connect, 100)
         nil
     end
   end
