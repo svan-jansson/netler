@@ -73,23 +73,20 @@ defmodule Netler.Client do
     {:reply, {:error, ".NET server is unreachable"}, state}
   end
 
-  def handle_info(:connect, state = %{port: port}) do
-    socket = connect(port)
-    {:noreply, %{state | socket: socket}}
-  end
-
   def handle_info({:EXIT, _pid, reason}, state) do
     {:stop, reason, state}
   end
 
-  defp connect(port) do
+  defp connect(port), do: connect(port, 1)
+
+  defp connect(port, attempt) when attempt <= 10 do
     case Transport.connect(port) do
       {:ok, socket} ->
         socket
 
       {:error, _reason} ->
-        Process.send_after(self(), :connect, 100)
-        nil
+        Process.sleep(100)
+        connect(port, attempt + 1)
     end
   end
 
