@@ -43,7 +43,7 @@ namespace Netler
             {
                 while (!stream.DataAvailable)
                 {
-                    await Task.Delay(0);
+                    await Task.Delay(1);
                 }
 
                 Action<int, object> respond = (atom, response) =>
