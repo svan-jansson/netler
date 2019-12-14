@@ -4,6 +4,8 @@ using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
+using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Netler
 {
@@ -16,6 +18,15 @@ namespace Netler
         public static Thread Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
             var port = Convert.ToInt32(args[0]);
+            var clientPid = Convert.ToInt32(args[1]);
+            Task.Run(() =>
+            {
+                while (ClientIsAlive(clientPid))
+                {
+                    Thread.Sleep(1_000);
+                }
+                Environment.Exit(0);
+            });
             var worker = new Thread(() => MessageLoop(methods, port));
             worker.Start();
             return worker;
@@ -108,6 +119,19 @@ namespace Netler
             catch (Exception ex)
             {
                 throw new MethodAccessException($"Method not found: {signature["name"]}", ex);
+            }
+        }
+
+        private static bool ClientIsAlive(int pid)
+        {
+            try
+            {
+                Process.GetProcessById(pid);
+                return true;
+            }
+            catch
+            {
+                return false;
             }
         }
     }

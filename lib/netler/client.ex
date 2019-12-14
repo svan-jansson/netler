@@ -79,7 +79,7 @@ defmodule Netler.Client do
   end
 
   def handle_info({:EXIT, _pid, _reason}, state) do
-    {:noreply, state}
+    {:stop, reason, state}
   end
 
   defp connect(port) do
@@ -100,7 +100,7 @@ defmodule Netler.Client do
     full_path = Path.join(bin_path, project_file)
 
     Task.Supervisor.start_child(Netler.DotnetProcessSupervisor, fn ->
-      System.cmd("dotnet", [full_path, "#{port}"], cd: bin_path)
+      System.cmd("dotnet", [full_path, "#{port}", System.pid()], cd: bin_path)
     end)
   end
 end
