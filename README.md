@@ -77,7 +77,7 @@ The `dotnet_projects` keyword accepts a list of `atom` (project name) or `{atom,
 
 ##### Autostart
 
-If you want to handle the startup of the `Netler.Client` for an embedded .NET project manuallay you can pass the `autostart: false` option like this:
+If you want to handle the startup of the `Netler.Client` for an embedded .NET project manually you can pass the `autostart: false` option. It can be useful if you want to run multiple instances of a .NET project or want to supervise it from a different supervisor.
 
 ```elixir
 def project do
