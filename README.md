@@ -71,6 +71,25 @@ def project do
 end
 ```
 
+#### Project Options
+
+The `dotnet_projects` keyword accepts a list of `atom` (project name) or `{atom, keyword}` (project name, options).
+
+##### Autostart
+
+If you want to handle the startup of the `Netler.Client` for an embedded .NET project manuallay you can pass the `autostart: false` option like this:
+
+```elixir
+def project do
+    [
+        ...,
+        dotnet_projects: [
+            {:my_dotnet_project, autostart: false}
+        ]
+    ]
+end
+```
+
 ### 4. Compile and Start your Elixir Application
 
 ```bash

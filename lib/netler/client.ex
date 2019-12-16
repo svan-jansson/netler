@@ -36,7 +36,7 @@ defmodule Netler.Client do
     Process.flag(:trap_exit, true)
     port = Transport.next_available_port()
     start_dotnet_server(dotnet_project, port)
-    socket = connect(port)
+    {:ok, socket} = connect(port)
     {:ok, %{state | socket: socket, port: port}}
   end
 
@@ -83,13 +83,15 @@ defmodule Netler.Client do
   defp connect(port, attempt) when attempt <= 10 do
     case Transport.connect(port) do
       {:ok, socket} ->
-        socket
+        {:ok, socket}
 
       {:error, _reason} ->
         Process.sleep(100)
         connect(port, attempt + 1)
     end
   end
+
+  defp connect(_port, _attempt), do: {:error, ".NET server is unreachable"}
 
   defp start_dotnet_server(dotnet_project, port) do
     dotnet_project = Atom.to_string(dotnet_project)

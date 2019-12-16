@@ -29,17 +29,9 @@ defmodule Mix.Tasks.Compile.Netler do
     File.mkdir_p!("priv")
     config = Mix.Project.config()
 
-    dotnet_projects =
-      config
-      |> Keyword.get(:dotnet_projects, [])
-
-    dotnet_projects
-    |> Enum.each(fn dotnet_project ->
-      dotnet_project = dotnet_project |> Atom.to_string()
-      project_path = Dotnet.project_path(dotnet_project)
-      Dotnet.compile_netler("#{project_path}/netler")
-      Dotnet.compile_project(dotnet_project)
-    end)
+    config
+    |> Keyword.get(:dotnet_projects, [])
+    |> Enum.each(&compile/1)
 
     symlink_or_copy(
       config,
@@ -48,6 +40,15 @@ defmodule Mix.Tasks.Compile.Netler do
     )
 
     :ok
+  end
+
+  defp compile({dotnet_project, _opts}), do: compile(dotnet_project)
+
+  defp compile(dotnet_project) do
+    dotnet_project = dotnet_project |> Atom.to_string()
+    project_path = Dotnet.project_path(dotnet_project)
+    Dotnet.compile_netler("#{project_path}/netler")
+    Dotnet.compile_project(dotnet_project)
   end
 
   defp symlink_or_copy(config, source, target) do
