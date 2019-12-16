@@ -19,7 +19,7 @@ Before continuing, ensure that the [.NET Core SDK](https://dotnet.microsoft.com/
 ```elixir
 defp deps do
     [
-        {:netler, "~> 0.1"}
+        {:netler, "~> 0.2"}
     ]
 end
 ```

@@ -86,7 +86,7 @@ defmodule Netler.Client do
         {:ok, socket}
 
       {:error, _reason} ->
-        Process.sleep(100)
+        Process.sleep(500)
         connect(port, attempt + 1)
     end
   end
