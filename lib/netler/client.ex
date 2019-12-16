@@ -8,7 +8,6 @@ defmodule Netler.Client do
   require Logger
 
   @invoke_timeout 60_000
-  @sigterm [15]
 
   def child_spec(opts) do
     dotnet_project = Keyword.get(opts, :dotnet_project)
@@ -33,16 +32,10 @@ defmodule Netler.Client do
   end
 
   def init(state = %{dotnet_project: dotnet_project}) do
-    Process.flag(:trap_exit, true)
     port = Transport.next_available_port()
     start_dotnet_server(dotnet_project, port)
     {:ok, socket} = connect(port)
     {:ok, %{state | socket: socket, port: port}}
-  end
-
-  def terminate(_reason, _state = %{socket: socket}) do
-    Transport.send(socket, @sigterm)
-    :normal
   end
 
   def invoke(dotnet_project, method_name, parameters) do
@@ -72,10 +65,6 @@ defmodule Netler.Client do
 
   def handle_call({:invoke, _message}, _from, state) do
     {:reply, {:error, ".NET server is unreachable"}, state}
-  end
-
-  def handle_info({:EXIT, _pid, reason}, state) do
-    {:stop, reason, state}
   end
 
   defp connect(port), do: connect(port, 1)

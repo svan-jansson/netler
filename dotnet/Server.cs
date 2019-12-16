@@ -13,7 +13,6 @@ namespace Netler
     {
         public const int ATOM_OK = 1;
         public const int ATOM_ERROR = 0;
-        private const byte SIGTERM = 15;
 
         public static void Export(string[] args, IDictionary<string, Func<object[], object>> methods)
         {
@@ -62,11 +61,6 @@ namespace Netler
                 {
                     var incomingBytes = new Byte[client.Available];
                     stream.Read(incomingBytes, 0, incomingBytes.Length);
-                    if (incomingBytes.Length == 1 && incomingBytes[0] == SIGTERM)
-                    {
-                        terminated = true;
-                        break;
-                    }
 
                     var signature = Message.Decode(incomingBytes);
                     var method = MapToMethod(methods, signature);
