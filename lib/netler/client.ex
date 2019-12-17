@@ -14,21 +14,29 @@ defmodule Netler.Client do
 
     %{
       id: dotnet_project,
-      start: {__MODULE__, :start_link, [dotnet_project]},
+      start: {__MODULE__, :start_link, [dotnet_project: dotnet_project, name: dotnet_project]},
       restart: :permanent,
       shutdown: 5000,
       type: :worker
     }
   end
 
-  def start_link(dotnet_project) do
+  def start_link(opts) do
+    dotnet_project = Keyword.get(opts, :dotnet_project)
+
+    start_opts =
+      case Keyword.get(opts, :name) do
+        nil -> []
+        name -> [name]
+      end
+
     state = %{
       dotnet_project: dotnet_project,
       socket: nil,
       port: nil
     }
 
-    GenServer.start_link(__MODULE__, state, name: dotnet_project)
+    GenServer.start_link(__MODULE__, state, start_opts)
   end
 
   def init(state = %{dotnet_project: dotnet_project}) do
