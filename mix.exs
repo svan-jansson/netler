@@ -6,7 +6,7 @@ defmodule Netler.MixProject do
       app: :netler,
       name: "Netler",
       source_url: "https://github.com/svan-jansson/netler",
-      version: "0.2.4",
+      version: "0.3.0",
       elixir: "~> 1.9",
       start_permanent: Mix.env() == :prod,
       deps: deps(),

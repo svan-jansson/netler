@@ -1,15 +1,6 @@
 defmodule Netler.Compiler.Dotnet do
   @moduledoc false
 
-  @doc "Compiles the Netler .NET project into a give output directory"
-  def compile_netler(output_path) do
-    System.cmd(
-      "dotnet",
-      ["build", "#{netler_source_path()}/Netler.csproj", "--output", output_path],
-      into: IO.stream(:stdio, :line)
-    )
-  end
-
   @doc "Compiles an embedded .NET project into the priv/<dotnet_project> folder"
   def compile_project(dotnet_project) do
     System.cmd(
@@ -29,9 +20,6 @@ defmodule Netler.Compiler.Dotnet do
 
   @doc "Returns the path to where the binaries are located after building an embedded .NET project"
   def project_build_binary_path(dotnet_project), do: Path.expand("priv/#{dotnet_project}")
-
-  @doc "Returns the Netler source code directory"
-  def netler_source_path, do: Path.join(Mix.Project.deps_path(), "netler/dotnet")
 
   @doc "Returns the path to where the an embedded .NET project's binaries are located during runtime"
   def runtime_binary_path(dotnet_project) do

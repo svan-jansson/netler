@@ -19,7 +19,7 @@ Before continuing, ensure that the [.NET Core SDK](https://dotnet.microsoft.com/
 ```elixir
 defp deps do
     [
-        {:netler, "~> 0.2"}
+        {:netler, "~> 0.3"}
     ]
 end
 ```
@@ -114,25 +114,32 @@ This is what the generated `Program.cs` looks like:
 ```csharp
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Netler;
 
 namespace MyDotnetProject
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            Netler.Server.Export(
-                args,
-                new Dictionary<string, Func<object[], object>> {
-                    {"Add", Add}
-                    // You can export more methods here...
-                }
-            );
+            var port = Convert.ToInt32(args[0]);
+            var clientPid = Convert.ToInt32(args[1]);
+
+            var server = Server.Create((config) =>
+                {
+                    config.UsePort(port);
+                    config.UseClientPid(clientPid);
+                    config.UseRoutes((routes) =>
+                    {
+                        routes.Add("Add", Add);
+                        // More routes can be added here ...
+                    });
+                });
+
+            await server.Start();
         }
 
-        // This is the code that gets executed when
-        // the function `add/2` is called from Elixir
         static object Add(params object[] parameters)
         {
             var a = Convert.ToInt32(parameters[0]);
@@ -159,8 +166,3 @@ defmodule MyElixirApplication.MyDotnetProject do
 end
 
 ```
-
-## Known Issues
-
-- Error handling is still WIP. It should probably follow a fault tolerant patter and give the possibility to get debug information from the .NET process.
-- Messages are sent and received using the `MessagePack` binary format. There are both data type and size limitations when serializing terms. I'm considering switching to `BSON` but more field testing is required before making the jump.

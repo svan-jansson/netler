@@ -46,8 +46,6 @@ defmodule Mix.Tasks.Compile.Netler do
 
   defp compile(dotnet_project) do
     dotnet_project = dotnet_project |> Atom.to_string()
-    project_path = Dotnet.project_path(dotnet_project)
-    Dotnet.compile_netler("#{project_path}/netler")
     Dotnet.compile_project(dotnet_project)
   end
 

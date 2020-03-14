@@ -38,8 +38,6 @@ defmodule Mix.Tasks.Netler.New do
           dotnet_project
         )
 
-        Dotnet.compile_netler("#{project_path}/netler")
-
         log_info(
           "Done! Remeber to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
         )
@@ -84,16 +82,14 @@ defmodule Mix.Tasks.Netler.New do
     """
     <Project Sdk="Microsoft.NET.Sdk">
 
-        <PropertyGroup>
-            <OutputType>Exe</OutputType>
-            <TargetFramework>netcoreapp3.0</TargetFramework>
-        </PropertyGroup>
+      <PropertyGroup>
+          <OutputType>Exe</OutputType>
+          <TargetFramework>netcoreapp3.1</TargetFramework>
+      </PropertyGroup>
 
-        <ItemGroup>
-            <Reference Include="Netler">
-                <HintPath>netler/Netler.dll</HintPath>
-            </Reference>
-        </ItemGroup>
+      <ItemGroup>
+          <PackageReference Include="Netler.NET" Version="1.*" />
+      </ItemGroup>
 
     </Project>
     """
@@ -103,20 +99,30 @@ defmodule Mix.Tasks.Netler.New do
     """
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using Netler;
 
     namespace #{Macro.camelize(dotnet_project)}
     {
         class Program
         {
-            static void Main(string[] args)
+            static async Task Main(string[] args)
             {
-                Netler.Server.Export(
-                    args,
-                    new Dictionary<string, Func<object[], object>> {
-                        {"Add", Add}
-                    }
-                );
+                var port = Convert.ToInt32(args[0]);
+                var clientPid = Convert.ToInt32(args[1]);
+
+                var server = Server.Create((config) =>
+                    {
+                        config.UsePort(port);
+                        config.UseClientPid(clientPid);
+                        config.UseRoutes((routes) =>
+                        {
+                            routes.Add("Add", Add);
+                            // More routes can be added here ...
+                        });
+                    });
+
+                await server.Start();
             }
 
             static object Add(params object[] parameters)

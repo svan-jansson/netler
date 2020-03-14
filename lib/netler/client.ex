@@ -14,20 +14,18 @@ defmodule Netler.Client do
 
     %{
       id: dotnet_project,
-      start: {__MODULE__, :start_link, [dotnet_project: dotnet_project, name: dotnet_project]},
+      start: {__MODULE__, :start_link, [dotnet_project, dotnet_project]},
       restart: :permanent,
       shutdown: 5000,
       type: :worker
     }
   end
 
-  def start_link(opts) do
-    dotnet_project = Keyword.get(opts, :dotnet_project)
-
+  def start_link(dotnet_project, name \\ nil) do
     start_opts =
-      case Keyword.get(opts, :name) do
+      case name do
         nil -> []
-        name -> [name]
+        name -> [name: name]
       end
 
     state = %{
