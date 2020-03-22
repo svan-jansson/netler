@@ -1,8 +1,9 @@
 defmodule Netler.Transport do
+  require Logger
   @moduledoc false
 
   @doc "Opens a socket on a given port"
-  def connect(port), do: :gen_tcp.connect('localhost', port, [:binary, active: false])
+  def connect(port), do: :gen_tcp.connect('localhost', port, [:binary, active: false, packet: 4])
 
   @doc "Sends a binary message to a socket stream"
   def send(socket, message), do: :gen_tcp.send(socket, message)
