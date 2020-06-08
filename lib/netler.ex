@@ -28,8 +28,10 @@ defmodule Netler do
 
       @doc "Same as `invoke/2` but raises errors"
       def invoke!(method_name, parameters) do
-        {:ok, response} = invoke(method_name, parameters)
-        response
+        case invoke(method_name, parameters) do
+          {:ok, response} -> response
+          {:error, reason} -> raise reason
+        end
       end
     end
   end

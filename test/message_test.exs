@@ -37,4 +37,18 @@ defmodule MessageTest do
     assert atom == :error
     assert decoded == 23
   end
+
+  test "throws a domain specific error when cannot decode because invalid argument" do
+    encoded = [:d, :u, :m, :m, :y]
+    {atom, error} = Message.decode(encoded)
+    assert atom == :error
+    %Netler.Message.DecodeError{} = error
+  end
+
+  test "throws a domain specific error when cannot decode because malformed data" do
+    encoded = "dummy"
+    {atom, error} = Message.decode(encoded)
+    assert atom == :error
+    %Netler.Message.DecodeError{} = error
+  end
 end

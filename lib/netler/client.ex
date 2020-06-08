@@ -1,9 +1,27 @@
+defmodule Netler.InvokeError do
+  @moduledoc false
+
+  defexception [:communication_error, :dotnet_exception, :unreachable]
+
+  def message(%{communication_error: communication_error}) do
+    "Communication error: #{communication_error}"
+  end
+
+  def message(%{dotnet_exception: dotnet_exception}) do
+    ".NET server threw an exception: #{dotnet_exception}"
+  end
+
+  def message(%{unreachable: true}) do
+    ".NET server is unreachable"
+  end
+end
+
 defmodule Netler.Client do
   @moduledoc false
 
   use GenServer
 
-  alias Netler.{Compiler, Message, Transport}
+  alias Netler.{Compiler, InvokeError, Message, Transport}
 
   require Logger
 
@@ -62,15 +80,15 @@ defmodule Netler.Client do
            {:ok, remote_response} <- Transport.receive(socket) do
         {:ok, remote_response}
       else
-        {:error, error_details} -> {:error, error_details}
-        unknown_error -> {:error, unknown_error}
+        {:error, dotnet_exception} -> {:error, %InvokeError{dotnet_exception: dotnet_exception}}
+        unknown_error -> {:error, %InvokeError{communication_error: unknown_error}}
       end
 
     {:reply, response, state}
   end
 
   def handle_call({:invoke, _message}, _from, state) do
-    {:reply, {:error, ".NET server is unreachable"}, state}
+    {:reply, {:error, %InvokeError{unreachable: true}}, state}
   end
 
   defp connect(port), do: connect(port, 1)
@@ -86,7 +104,7 @@ defmodule Netler.Client do
     end
   end
 
-  defp connect(_port, _attempt), do: {:error, ".NET server is unreachable"}
+  defp connect(_port, _attempt), do: {:error, %InvokeError{unreachable: true}}
 
   defp start_dotnet_server(dotnet_project, port) do
     dotnet_project = Atom.to_string(dotnet_project)

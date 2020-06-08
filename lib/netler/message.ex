@@ -1,3 +1,13 @@
+defmodule Netler.Message.DecodeError do
+  @moduledoc false
+
+  defexception [:message]
+
+  def message(%{message: message}) do
+    "Could not decode message from .NET server: #{message}"
+  end
+end
+
 defmodule Netler.Message do
   @moduledoc false
 
@@ -6,14 +16,23 @@ defmodule Netler.Message do
 
   @doc "Decodes a message after receiving it from a .NET application"
   def decode(data) do
-    with {:ok, decoded} <- Msgpax.unpack(data) do
-      case decoded do
-        [1 | [scalar]] -> {:ok, scalar}
-        [0 | [scalar]] -> {:error, scalar}
-        [1 | list] -> {:ok, list}
-        [0 | list] -> {:error, list}
-        _ -> {:error, :invalid_message_format}
-      end
+    case Msgpax.unpack(data) do
+      {:ok, [1 | [scalar]]} ->
+        {:ok, scalar}
+
+      {:ok, [0 | [scalar]]} ->
+        {:error, scalar}
+
+      {:ok, [1 | list]} ->
+        {:ok, list}
+
+      {:ok, [0 | list]} ->
+        {:error, list}
+
+      {:error, decode_error} ->
+        {:error, %Netler.Message.DecodeError{message: decode_error.reason}}
     end
+  rescue
+    error -> {:error, %Netler.Message.DecodeError{message: error.message}}
   end
 end
