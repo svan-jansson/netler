@@ -48,7 +48,7 @@ defmodule Netler.Client do
 
     state = %{
       dotnet_project: dotnet_project,
-      socket: nil,
+      server: nil,
       port: nil
     }
 
@@ -58,8 +58,8 @@ defmodule Netler.Client do
   def init(state = %{dotnet_project: dotnet_project}) do
     port = Transport.next_available_port()
     start_dotnet_server(dotnet_project, port)
-    {:ok, socket} = connect(port)
-    {:ok, %{state | socket: socket, port: port}}
+    {:ok, server} = connect_to_server(port)
+    {:ok, %{state | server: server, port: port}}
   end
 
   def invoke(dotnet_project, method_name, parameters) do
@@ -74,10 +74,10 @@ defmodule Netler.Client do
     end
   end
 
-  def handle_call({:invoke, message}, _from, state = %{socket: socket}) when socket != nil do
+  def handle_call({:invoke, message}, _from, state = %{server: server}) when server != nil do
     response =
-      with :ok <- Transport.send(socket, message),
-           {:ok, remote_response} <- Transport.receive(socket) do
+      with :ok <- Transport.send(server, message),
+           {:ok, remote_response} <- Transport.receive(server) do
         {:ok, remote_response}
       else
         {:error, dotnet_exception} -> {:error, %InvokeError{dotnet_exception: dotnet_exception}}
@@ -91,20 +91,24 @@ defmodule Netler.Client do
     {:reply, {:error, %InvokeError{unreachable: true}}, state}
   end
 
-  defp connect(port), do: connect(port, 1)
+  defp connect_to_server(port) do
+    max_attempts = 10
+    current_attempt = 1
+    connect(port, max_attempts, current_attempt)
+  end
 
-  defp connect(port, attempt) when attempt <= 10 do
+  defp connect(port, max_attempts, current_attempt) when attempt <= current_attempt do
     case Transport.connect(port) do
-      {:ok, socket} ->
-        {:ok, socket}
+      {:ok, server} ->
+        {:ok, server}
 
       {:error, _reason} ->
         Process.sleep(500)
-        connect(port, attempt + 1)
+        connect(port, max_attempts, attempt + 1)
     end
   end
 
-  defp connect(_port, _attempt), do: {:error, %InvokeError{unreachable: true}}
+  defp connect(_port, _max_attempts, _attempt), do: {:error, %InvokeError{unreachable: true}}
 
   defp start_dotnet_server(dotnet_project, port) do
     dotnet_project = Atom.to_string(dotnet_project)
