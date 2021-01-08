@@ -97,14 +97,14 @@ defmodule Netler.Client do
     connect(port, max_attempts, current_attempt)
   end
 
-  defp connect(port, max_attempts, current_attempt) when attempt <= current_attempt do
+  defp connect(port, max_attempts, current_attempt) when current_attempt <= max_attempts do
     case Transport.connect(port) do
       {:ok, server} ->
         {:ok, server}
 
       {:error, _reason} ->
         Process.sleep(500)
-        connect(port, max_attempts, attempt + 1)
+        connect(port, max_attempts, current_attempt + 1)
     end
   end
 
