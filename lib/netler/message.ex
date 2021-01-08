@@ -3,9 +3,6 @@ defmodule Netler.Message.DecodeError do
 
   defexception [:message]
 
-  @server_ok 1
-  @server_exception 0
-
   def message(%{message: message}) do
     "Could not decode message from .NET server: #{message}"
   end
@@ -13,6 +10,9 @@ end
 
 defmodule Netler.Message do
   @moduledoc false
+
+  @server_ok 1
+  @server_exception 0
 
   @doc "Encodes a message before sending it to a .NET application"
   def encode(data = %{}), do: Msgpax.pack(data)
