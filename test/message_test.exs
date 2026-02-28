@@ -15,7 +15,7 @@ defmodule Netler.MessageTest do
 
       {atom, encoded} = Message.encode(message)
       assert atom == :ok
-      assert is_list(encoded)
+      assert is_binary(IO.iodata_to_binary(encoded))
     end
   end
 

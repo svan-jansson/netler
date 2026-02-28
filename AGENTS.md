@@ -54,7 +54,7 @@ GitHub Actions workflow: `.github/workflows/build-test-publish.yml`
 - **Elixir version**: `~> 1.15` minimum (use `~c"..."` charlist syntax, not `'...'`)
 - **.NET target framework**: `net9.0` in generated `.csproj` templates
 - **OTP/Elixir pins**: see `mise.toml` (Erlang 28, Elixir 1.19.5-OTP-28)
-- **Deps**: `msgpax ~> 2.0`, `credo ~> 1.7`, `ex_doc ~> 0.35`
+- **Deps**: `msgpax ~> 2.4`, `credo ~> 1.7`, `ex_doc ~> 0.40`
 - **@spec**: all public functions in `Netler.*` modules should carry `@spec` annotations
 - **Module naming**: test modules use full namespace (`Netler.MessageTest`, etc.)
 
