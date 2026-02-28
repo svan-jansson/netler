@@ -3,11 +3,11 @@ defmodule Netler.InvokeError do
 
   defexception [:communication_error, :dotnet_exception, :unreachable]
 
-  def message(%{communication_error: communication_error}) do
+  def message(%{communication_error: communication_error}) when not is_nil(communication_error) do
     "Communication error: #{communication_error}"
   end
 
-  def message(%{dotnet_exception: dotnet_exception}) do
+  def message(%{dotnet_exception: dotnet_exception}) when not is_nil(dotnet_exception) do
     ".NET server threw an exception: #{dotnet_exception}"
   end
 

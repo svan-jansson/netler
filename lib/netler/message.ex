@@ -38,6 +38,6 @@ defmodule Netler.Message do
         {:error, %Netler.Message.DecodeError{message: decode_error.reason}}
     end
   rescue
-    other_error -> {:error, %Netler.Message.DecodeError{message: other_error.message}}
+    other_error -> {:error, %Netler.Message.DecodeError{message: Exception.message(other_error)}}
   end
 end

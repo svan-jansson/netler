@@ -6,7 +6,7 @@ defmodule Netler.MixProject do
       app: :netler,
       name: "Netler",
       source_url: "https://github.com/svan-jansson/netler",
-      version: "0.3.2",
+      version: "0.0.0-dev",
       elixir: "~> 1.15",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -27,7 +27,7 @@ defmodule Netler.MixProject do
     [
       {:ex_doc, "~> 0.35", only: :dev, runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
-      {:msgpax, "~> 2.0"}
+      {:msgpax, "~> 2.4"}
     ]
   end
 
