@@ -1,54 +1,75 @@
-defmodule MessageTest do
+defmodule Netler.MessageTest do
   use ExUnit.Case
   alias Netler.Message
 
-  test "encodes a message to binary format" do
-    {:ok, dt, _} = DateTime.from_iso8601("2015-01-23T23:50:07Z")
+  describe "encode/1" do
+    test "encodes a message to binary format" do
+      {:ok, dt, _} = DateTime.from_iso8601("2015-01-23T23:50:07Z")
 
-    message = %{
-      string: "string value",
-      integer: 23,
-      float: 34.66,
-      datetime: dt
-    }
+      message = %{
+        string: "string value",
+        integer: 23,
+        float: 34.66,
+        datetime: dt
+      }
 
-    {atom, encoded} = Message.encode(message)
-    assert atom == :ok
-    assert is_list(encoded)
+      {atom, encoded} = Message.encode(message)
+      assert atom == :ok
+      assert is_binary(IO.iodata_to_binary(encoded))
+    end
   end
 
-  test "decodes a scalar message" do
-    encoded = [146, [1], [23]]
-    {atom, decoded} = Message.decode(encoded)
-    assert atom == :ok
-    assert decoded == 23
+  describe "decode/1" do
+    test "decodes a scalar message" do
+      encoded = [146, [1], [23]]
+      {atom, decoded} = Message.decode(encoded)
+      assert atom == :ok
+      assert decoded == 23
+    end
+
+    test "decodes a list message" do
+      encoded = [146, [1], [148, [23], [22], [21], [20]]]
+      {atom, decoded} = Message.decode(encoded)
+      assert atom == :ok
+      assert decoded == [23, 22, 21, 20]
+    end
+
+    test "unpacks error status from message" do
+      encoded = [146, [0], [23]]
+      {atom, decoded} = Message.decode(encoded)
+      assert atom == :error
+      assert decoded == 23
+    end
+
+    test "returns a domain specific error when cannot decode because invalid argument" do
+      encoded = [:d, :u, :m, :m, :y]
+      {atom, error} = Message.decode(encoded)
+      assert atom == :error
+      %Netler.Message.DecodeError{} = error
+    end
+
+    test "returns a domain specific error when cannot decode because malformed data" do
+      encoded = "dummy"
+      {atom, error} = Message.decode(encoded)
+      assert atom == :error
+      %Netler.Message.DecodeError{} = error
+    end
   end
 
-  test "decodes a list message" do
-    encoded = [146, [1], [148, [23], [22], [21], [20]]]
-    {atom, decoded} = Message.decode(encoded)
-    assert atom == :ok
-    assert decoded == [23, 22, 21, 20]
-  end
+  describe "Netler.InvokeError message/1" do
+    test "formats communication_error" do
+      error = %Netler.InvokeError{communication_error: :timeout}
+      assert Exception.message(error) == "Communication error: timeout"
+    end
 
-  test "unpacks error status from message" do
-    encoded = [146, [0], [23]]
-    {atom, decoded} = Message.decode(encoded)
-    assert atom == :error
-    assert decoded == 23
-  end
+    test "formats dotnet_exception" do
+      error = %Netler.InvokeError{dotnet_exception: "NullReferenceException"}
+      assert Exception.message(error) == ".NET server threw an exception: NullReferenceException"
+    end
 
-  test "throws a domain specific error when cannot decode because invalid argument" do
-    encoded = [:d, :u, :m, :m, :y]
-    {atom, error} = Message.decode(encoded)
-    assert atom == :error
-    %Netler.Message.DecodeError{} = error
-  end
-
-  test "throws a domain specific error when cannot decode because malformed data" do
-    encoded = "dummy"
-    {atom, error} = Message.decode(encoded)
-    assert atom == :error
-    %Netler.Message.DecodeError{} = error
+    test "formats unreachable" do
+      error = %Netler.InvokeError{unreachable: true}
+      assert Exception.message(error) == ".NET server is unreachable"
+    end
   end
 end

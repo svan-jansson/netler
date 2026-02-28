@@ -5,8 +5,11 @@ defmodule Netler.Application do
 
   def start(_type, _args) do
     dotnet_projects =
-      Mix.Project.config()
-      |> Keyword.get(:dotnet_projects, [])
+      if Code.ensure_loaded?(Mix) do
+        Mix.Project.config() |> Keyword.get(:dotnet_projects, [])
+      else
+        Application.get_env(:netler, :dotnet_projects, [])
+      end
 
     children =
       Enum.reduce(dotnet_projects, [], fn

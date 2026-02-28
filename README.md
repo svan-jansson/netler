@@ -2,13 +2,13 @@
     <img src="logo/netler.svg" alt="netler logo" height="150px">
 </p>
 
-[![Build Status](https://travis-ci.com/svan-jansson/netler.svg?branch=master)](https://travis-ci.com/svan-jansson/netler)
+[![Build Status](https://github.com/svan-jansson/netler/actions/workflows/build-test-publish.yml/badge.svg)](https://github.com/svan-jansson/netler/actions/workflows/build-test-publish.yml)
 [![Hex pm](https://img.shields.io/hexpm/v/netler.svg?style=flat)](https://hex.pm/packages/netler)
 [![Hex pm](https://img.shields.io/hexpm/dt/netler.svg?style=flat)](https://hex.pm/packages/netler)
 
 # Netler
 
-Enables language interopablility between Elixir and .NET. Heavily inspired by Rustler's convenient workflows. Full docs are available on [https://hexdocs.pm/netler/](https://hexdocs.pm/netler/).
+Enables language interoperability between Elixir and .NET. Heavily inspired by Rustler's convenient workflows. Full docs are available on [https://hexdocs.pm/netler/](https://hexdocs.pm/netler/).
 
 ## Getting Started
 
@@ -19,7 +19,7 @@ Before continuing, ensure that the [.NET Core SDK](https://dotnet.microsoft.com/
 ```elixir
 defp deps do
     [
-        {:netler, "~> 0.3"}
+        {:netler, "~> 0.4"}
     ]
 end
 ```
@@ -50,7 +50,7 @@ Build succeeded.
 
 Time Elapsed 00:00:08.74
 
-Done! Remeber to add :my_dotnet_project to the dotnet_projects list in your application's mix.exs
+Done! Remember to add :my_dotnet_project to the dotnet_projects list in your application's mix.exs
 ```
 
 ### 3. Add Netler Compiler and .NET Project to mix.exs
@@ -113,7 +113,6 @@ This is what the generated `Program.cs` looks like:
 
 ```csharp
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Netler;
 

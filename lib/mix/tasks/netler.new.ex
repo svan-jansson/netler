@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Netler.New do
   @impl true
   def run(_args) do
     dotnet_project =
-      Mix.Shell.IO.prompt("Please give your .NET project a name:")
+      Mix.shell().prompt("Please give your .NET project a name:")
       |> String.trim()
       |> Macro.underscore()
 
@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Netler.New do
         )
 
         log_info(
-          "Done! Remeber to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
+          "Done! Remember to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
         )
 
         :ok
@@ -84,7 +84,7 @@ defmodule Mix.Tasks.Netler.New do
 
       <PropertyGroup>
           <OutputType>Exe</OutputType>
-          <TargetFramework>netcoreapp3.1</TargetFramework>
+          <TargetFramework>net9.0</TargetFramework>
       </PropertyGroup>
 
       <ItemGroup>
@@ -98,7 +98,6 @@ defmodule Mix.Tasks.Netler.New do
   defp program_template(dotnet_project) do
     """
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Netler;
 
@@ -137,10 +136,10 @@ defmodule Mix.Tasks.Netler.New do
   end
 
   defp log_info(message) do
-    Mix.Shell.IO.info([:blue, message])
+    Mix.shell().info([:blue, message])
   end
 
   defp log_error(message) do
-    Mix.Shell.IO.info([:red, message])
+    Mix.shell().info([:red, message])
   end
 end
