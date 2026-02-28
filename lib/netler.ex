@@ -22,10 +22,12 @@ defmodule Netler do
     quote do
       @dotnet_project Keyword.get(unquote(opts), :dotnet_project)
 
+      @spec invoke(String.t(), list()) :: {:ok, any()} | {:error, any()}
       @doc "Invokes a named method in the linked .NET project. Returns `{:ok, response}` or `{:error, reason}`"
       def invoke(method_name, parameters),
         do: Netler.Client.invoke(@dotnet_project, method_name, parameters)
 
+      @spec invoke!(String.t(), list()) :: any()
       @doc "Same as `invoke/2` but raises errors"
       def invoke!(method_name, parameters) do
         case invoke(method_name, parameters) do

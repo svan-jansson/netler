@@ -27,6 +27,7 @@ defmodule Netler.Client do
 
   @invoke_timeout 60_000
 
+  @spec child_spec(keyword()) :: map()
   def child_spec(opts) do
     dotnet_project = Keyword.get(opts, :dotnet_project)
 
@@ -39,6 +40,7 @@ defmodule Netler.Client do
     }
   end
 
+  @spec start_link(atom(), atom() | nil) :: GenServer.on_start()
   def start_link(dotnet_project, name \\ nil) do
     start_opts =
       case name do
@@ -62,6 +64,7 @@ defmodule Netler.Client do
     {:ok, %{state | server: server, port: port}}
   end
 
+  @spec invoke(atom(), String.t(), list()) :: {:ok, any()} | {:error, any()}
   def invoke(dotnet_project, method_name, parameters) do
     envelope = %{
       name: method_name,

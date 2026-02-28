@@ -39,7 +39,7 @@ defmodule Mix.Tasks.Netler.New do
         )
 
         log_info(
-          "Done! Remeber to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
+          "Done! Remember to add :#{dotnet_project} to the dotnet_projects list in your application's mix.exs"
         )
 
         :ok
@@ -84,7 +84,7 @@ defmodule Mix.Tasks.Netler.New do
 
       <PropertyGroup>
           <OutputType>Exe</OutputType>
-          <TargetFramework>netcoreapp3.1</TargetFramework>
+          <TargetFramework>net9.0</TargetFramework>
       </PropertyGroup>
 
       <ItemGroup>
@@ -98,7 +98,6 @@ defmodule Mix.Tasks.Netler.New do
   defp program_template(dotnet_project) do
     """
     using System;
-    using System.Collections.Generic;
     using System.Threading.Tasks;
     using Netler;
 

@@ -14,9 +14,11 @@ defmodule Netler.Message do
   @server_ok 1
   @server_exception 0
 
+  @spec encode(map()) :: {:ok, iodata()} | {:error, any()}
   @doc "Encodes a message before sending it to a .NET application"
   def encode(data = %{}), do: Msgpax.pack(data)
 
+  @spec decode(iodata()) :: {:ok, any()} | {:error, any()}
   @doc "Decodes a message after receiving it from a .NET application"
   def decode(data) do
     case Msgpax.unpack(data) do
