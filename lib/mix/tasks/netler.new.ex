@@ -15,7 +15,7 @@ defmodule Mix.Tasks.Netler.New do
   @impl true
   def run(_args) do
     dotnet_project =
-      Mix.Shell.IO.prompt("Please give your .NET project a name:")
+      Mix.shell().prompt("Please give your .NET project a name:")
       |> String.trim()
       |> Macro.underscore()
 
@@ -136,10 +136,10 @@ defmodule Mix.Tasks.Netler.New do
   end
 
   defp log_info(message) do
-    Mix.Shell.IO.info([:blue, message])
+    Mix.shell().info([:blue, message])
   end
 
   defp log_error(message) do
-    Mix.Shell.IO.info([:red, message])
+    Mix.shell().info([:red, message])
   end
 end
