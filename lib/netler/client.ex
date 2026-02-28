@@ -51,7 +51,8 @@ defmodule Netler.Client do
     state = %{
       dotnet_project: dotnet_project,
       server: nil,
-      port: nil
+      port: nil,
+      task_ref: nil
     }
 
     GenServer.start_link(__MODULE__, state, start_opts)
@@ -59,9 +60,13 @@ defmodule Netler.Client do
 
   def init(state = %{dotnet_project: dotnet_project}) do
     port = Transport.next_available_port()
-    start_dotnet_server(dotnet_project, port)
+    task_ref = start_dotnet_server(dotnet_project, port)
+    {:ok, %{state | port: port, task_ref: task_ref}, {:continue, :connect}}
+  end
+
+  def handle_continue(:connect, state = %{port: port}) do
     {:ok, server} = connect_to_server(port)
-    {:ok, %{state | server: server, port: port}}
+    {:noreply, %{state | server: server}}
   end
 
   @spec invoke(atom(), String.t(), list()) :: {:ok, any()} | {:error, any()}
@@ -72,7 +77,7 @@ defmodule Netler.Client do
     }
 
     with {:ok, message} <- Message.encode(envelope),
-         {:ok, response} <- GenServer.call(dotnet_project, {:invoke, message}, @invoke_timeout) do
+         {:ok, response} <- call(dotnet_project, {:invoke, message}) do
       Message.decode(response)
     end
   end
@@ -83,15 +88,34 @@ defmodule Netler.Client do
            {:ok, remote_response} <- Transport.receive(server) do
         {:ok, remote_response}
       else
-        {:error, dotnet_exception} -> {:error, %InvokeError{dotnet_exception: dotnet_exception}}
-        unknown_error -> {:error, %InvokeError{communication_error: unknown_error}}
+        {:error, reason} ->
+          {:error, %InvokeError{communication_error: reason}}
+
+        unknown ->
+          {:error, %InvokeError{communication_error: unknown}}
       end
 
-    {:reply, response, state}
+    case response do
+      {:error, _} = err -> {:reply, err, %{state | server: nil}}
+      ok -> {:reply, ok, state}
+    end
   end
 
   def handle_call({:invoke, _message}, _from, state) do
     {:reply, {:error, %InvokeError{unreachable: true}}, state}
+  end
+
+  def handle_info({:DOWN, ref, :process, _pid, reason}, %{task_ref: ref} = state) do
+    Logger.warning("Netler: .NET process terminated: #{inspect(reason)}")
+    {:noreply, %{state | server: nil, task_ref: nil}}
+  end
+
+  def handle_info(_msg, state), do: {:noreply, state}
+
+  defp call(server, message) do
+    GenServer.call(server, message, @invoke_timeout)
+  catch
+    :exit, reason -> {:error, %InvokeError{communication_error: reason}}
   end
 
   defp connect_to_server(port) do
@@ -119,8 +143,11 @@ defmodule Netler.Client do
     project_file = Macro.camelize(dotnet_project) <> ".dll"
     full_path = Path.join(bin_path, project_file)
 
-    Task.Supervisor.start_child(Netler.DotnetProcessSupervisor, fn ->
-      System.cmd("dotnet", [full_path, "#{port}", System.pid()], cd: bin_path)
-    end)
+    {:ok, pid} =
+      Task.Supervisor.start_child(Netler.DotnetProcessSupervisor, fn ->
+        System.cmd("dotnet", [full_path, "#{port}", System.pid()], cd: bin_path)
+      end)
+
+    Process.monitor(pid)
   end
 end

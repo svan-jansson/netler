@@ -33,7 +33,7 @@ defmodule Netler.MixProject do
 
   defp description do
     """
-    Enables language interopablility between Elixir and .NET
+    Enables language interoperability between Elixir and .NET
     """
   end
 

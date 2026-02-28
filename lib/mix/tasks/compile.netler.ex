@@ -20,26 +20,33 @@ defmodule Mix.Tasks.Compile.Netler do
   end
   ```
   """
-  use Mix.Task
+  use Mix.Task.Compiler
 
   alias Netler.Compiler.Dotnet
 
-  @impl true
+  @impl Mix.Task.Compiler
   def run(_args) do
-    File.mkdir_p!("priv")
     config = Mix.Project.config()
+    dotnet_projects = Keyword.get(config, :dotnet_projects, [])
 
-    config
-    |> Keyword.get(:dotnet_projects, [])
-    |> Enum.each(&compile/1)
+    if dotnet_projects == [] do
+      {:noop, []}
+    else
+      File.mkdir_p!("priv")
 
-    symlink_or_copy(
-      config,
-      Path.expand("priv"),
-      Path.join(Mix.Project.app_path(config), "priv")
-    )
+      results = Enum.map(dotnet_projects, &compile/1)
 
-    :ok
+      Mix.Utils.symlink_or_copy(
+        Path.expand("priv"),
+        Path.join(Mix.Project.app_path(config), "priv")
+      )
+
+      if Enum.all?(results, &(&1 == :ok)) do
+        {:ok, []}
+      else
+        {:error, []}
+      end
+    end
   end
 
   defp compile({dotnet_project, _opts}), do: compile(dotnet_project)
@@ -47,18 +54,5 @@ defmodule Mix.Tasks.Compile.Netler do
   defp compile(dotnet_project) do
     dotnet_project = dotnet_project |> Atom.to_string()
     Dotnet.compile_project(dotnet_project)
-  end
-
-  defp symlink_or_copy(config, source, target) do
-    if config[:build_embedded] do
-      if File.exists?(source) do
-        File.rm_rf!(target)
-        File.cp_r!(source, target)
-      end
-
-      :ok
-    else
-      Mix.Utils.symlink_or_copy(source, target)
-    end
   end
 end

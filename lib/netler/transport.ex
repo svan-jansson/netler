@@ -19,7 +19,11 @@ defmodule Netler.Transport do
   def next_available_port do
     {:ok, port} = :gen_tcp.listen(0, [])
     {:ok, port_number} = :inet.port(port)
-    Port.close(port)
+    # NOTE: There is an inherent TOCTOU race between releasing this port and the
+    # .NET server binding to it. Eliminating it would require the .NET side to
+    # bind to port 0 and report back its chosen port number, which would need a
+    # protocol change. The current risk is low in practice.
+    :gen_tcp.close(port)
     port_number
   end
 end
