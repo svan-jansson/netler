@@ -34,25 +34,23 @@ defmodule Mix.Tasks.Compile.Netler do
     else
       File.mkdir_p!("priv")
 
-      results = Enum.map(dotnet_projects, &compile/1)
+      ok? =
+        dotnet_projects
+        |> Enum.map(fn
+          {project, _opts} -> Atom.to_string(project)
+          project -> Atom.to_string(project)
+        end)
+        |> Enum.all?(fn project_name ->
+          {_, exit_code} = Dotnet.compile_project(project_name)
+          exit_code == 0
+        end)
 
       Mix.Utils.symlink_or_copy(
         Path.expand("priv"),
         Path.join(Mix.Project.app_path(config), "priv")
       )
 
-      if Enum.all?(results, &(&1 == :ok)) do
-        {:ok, []}
-      else
-        {:error, []}
-      end
+      if ok?, do: {:ok, []}, else: {:error, []}
     end
-  end
-
-  defp compile({dotnet_project, _opts}), do: compile(dotnet_project)
-
-  defp compile(dotnet_project) do
-    dotnet_project = dotnet_project |> Atom.to_string()
-    Dotnet.compile_project(dotnet_project)
   end
 end
