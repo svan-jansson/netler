@@ -12,12 +12,17 @@ defmodule Mix.Tasks.Netler.New do
   use Mix.Task
   alias Netler.Compiler.Dotnet
 
+  @supported_dotnet_versions ["net6.0", "net7.0", "net8.0", "net9.0", "net10.0"]
+  @default_dotnet_version "net9.0"
+
   @impl true
   def run(_args) do
     dotnet_project =
       Mix.shell().prompt("Please give your .NET project a name:")
       |> String.trim()
       |> Macro.underscore()
+
+    dotnet_version = prompt_dotnet_version()
 
     case dotnet_project do
       "" ->
@@ -35,7 +40,8 @@ defmodule Mix.Tasks.Netler.New do
           application_name,
           lib_path,
           project_path,
-          dotnet_project
+          dotnet_project,
+          dotnet_version
         )
 
         log_info(
@@ -46,17 +52,48 @@ defmodule Mix.Tasks.Netler.New do
     end
   end
 
+  defp prompt_dotnet_version do
+    Mix.shell().info("Please select your .NET version:")
+
+    @supported_dotnet_versions
+    |> Enum.with_index(1)
+    |> Enum.each(fn {version, index} ->
+      default_marker = if version == @default_dotnet_version, do: " (default)", else: ""
+      Mix.shell().info("  #{index}. #{version}#{default_marker}")
+    end)
+
+    input =
+      Mix.shell().prompt("Enter number [1-#{length(@supported_dotnet_versions)}]:")
+      |> String.trim()
+
+    case input do
+      "" ->
+        @default_dotnet_version
+
+      input ->
+        case Integer.parse(input) do
+          {n, ""} when n >= 1 and n <= length(@supported_dotnet_versions) ->
+            Enum.at(@supported_dotnet_versions, n - 1)
+
+          _ ->
+            log_info("Invalid selection, defaulting to #{@default_dotnet_version}")
+            @default_dotnet_version
+        end
+    end
+  end
+
   defp create_source_files_from_templates(
          application_name,
          lib_path,
          project_path,
-         dotnet_project
+         dotnet_project,
+         dotnet_version
        ) do
     File.mkdir_p!(project_path)
     csproj_file = "#{project_path}/#{Macro.camelize(dotnet_project)}.csproj"
     program_file = "#{project_path}/Program.cs"
 
-    File.write!(csproj_file, csproj_template())
+    File.write!(csproj_file, csproj_template(dotnet_version))
     log_info("Created #{csproj_file}")
 
     File.write!(program_file, program_template(dotnet_project))
@@ -74,21 +111,24 @@ defmodule Mix.Tasks.Netler.New do
       use Netler, dotnet_project: :#{dotnet_project}
 
       def add(a, b), do: invoke("Add", [a, b])
+      def subtract(a, b), do: invoke("Subtract", [a, b])
+      def multiply(a, b), do: invoke("Multiply", [a, b])
+      def divide(a, b), do: invoke("Divide", [a, b])
     end
     """
   end
 
-  defp csproj_template do
+  defp csproj_template(dotnet_version) do
     """
     <Project Sdk="Microsoft.NET.Sdk">
 
       <PropertyGroup>
           <OutputType>Exe</OutputType>
-          <TargetFramework>net9.0</TargetFramework>
+          <TargetFramework>#{dotnet_version}</TargetFramework>
       </PropertyGroup>
 
       <ItemGroup>
-          <PackageReference Include="Netler.NET" Version="1.*" />
+          <PackageReference Include="Netler.NET" Version="2.*" />
       </ItemGroup>
 
     </Project>
@@ -100,6 +140,7 @@ defmodule Mix.Tasks.Netler.New do
     using System;
     using System.Threading.Tasks;
     using Netler;
+    using Netler.Contracts;
 
     namespace #{Macro.camelize(dotnet_project)}
     {
@@ -116,19 +157,17 @@ defmodule Mix.Tasks.Netler.New do
                         config.UseClientPid(clientPid);
                         config.UseRoutes((routes) =>
                         {
-                            routes.Add("Add", Add);
+                            // Example routes:
+                            routes.AddTyped("Add", (int a, int b) => a + b);
+                            routes.AddTyped("Subtract", (int a, int b) => a - b);
+                            routes.AddTyped("Multiply", (int a, int b) => a * b);
+                            routes.AddTyped("Divide", (int a, int b) => a / Convert.ToDouble(b));
+
                             // More routes can be added here ...
                         });
                     });
 
                 await server.Start();
-            }
-
-            static object Add(params object[] parameters)
-            {
-                var a = Convert.ToInt32(parameters[0]);
-                var b = Convert.ToInt32(parameters[1]);
-                return a + b;
             }
         }
     }
