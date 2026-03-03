@@ -24,10 +24,9 @@ defmodule Netler.Compiler.Dotnet do
   @doc "Returns the path to where the binaries are located after building an embedded .NET project"
   def project_build_binary_path(dotnet_project), do: Path.expand("priv/#{dotnet_project}")
 
-  @spec runtime_binary_path(String.t()) :: String.t()
+  @spec runtime_binary_path(String.t(), atom()) :: String.t()
   @doc "Returns the path to where the an embedded .NET project's binaries are located during runtime"
-  def runtime_binary_path(dotnet_project) do
-    app = Mix.Project.config() |> Keyword.get(:app)
+  def runtime_binary_path(dotnet_project, app) do
     Application.app_dir(app, "priv/#{dotnet_project}")
   end
 end

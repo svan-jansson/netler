@@ -30,18 +30,19 @@ defmodule Netler.Client do
   @spec child_spec(keyword()) :: map()
   def child_spec(opts) do
     dotnet_project = Keyword.get(opts, :dotnet_project)
+    app = Keyword.get(opts, :app)
 
     %{
       id: dotnet_project,
-      start: {__MODULE__, :start_link, [dotnet_project, dotnet_project]},
+      start: {__MODULE__, :start_link, [dotnet_project, app, dotnet_project]},
       restart: :permanent,
       shutdown: 5000,
       type: :worker
     }
   end
 
-  @spec start_link(atom(), atom() | nil) :: GenServer.on_start()
-  def start_link(dotnet_project, name \\ nil) do
+  @spec start_link(atom(), atom(), atom() | nil) :: GenServer.on_start()
+  def start_link(dotnet_project, app, name \\ nil) do
     start_opts =
       case name do
         nil -> []
@@ -50,6 +51,7 @@ defmodule Netler.Client do
 
     state = %{
       dotnet_project: dotnet_project,
+      app: app,
       server: nil,
       port: nil,
       task_ref: nil
@@ -58,9 +60,9 @@ defmodule Netler.Client do
     GenServer.start_link(__MODULE__, state, start_opts)
   end
 
-  def init(state = %{dotnet_project: dotnet_project}) do
+  def init(state = %{dotnet_project: dotnet_project, app: app}) do
     port = Transport.next_available_port()
-    task_ref = start_dotnet_server(dotnet_project, port)
+    task_ref = start_dotnet_server(dotnet_project, app, port)
     {:ok, %{state | port: port, task_ref: task_ref}, {:continue, :connect}}
   end
 
@@ -137,9 +139,9 @@ defmodule Netler.Client do
 
   defp connect(_port, _max_attempts, _attempt), do: {:error, %InvokeError{unreachable: true}}
 
-  defp start_dotnet_server(dotnet_project, port) do
+  defp start_dotnet_server(dotnet_project, app, port) do
     dotnet_project = Atom.to_string(dotnet_project)
-    bin_path = Compiler.Dotnet.runtime_binary_path(dotnet_project)
+    bin_path = Compiler.Dotnet.runtime_binary_path(dotnet_project, app)
     project_file = Macro.camelize(dotnet_project) <> ".dll"
     full_path = Path.join(bin_path, project_file)
 

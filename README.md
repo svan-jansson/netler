@@ -103,6 +103,44 @@ iex(1)> MyElixirApplication.MyDotnetProject.add(2, 5)
 {:ok, 7}
 ```
 
+## Umbrella Projects
+
+Netler supports umbrella applications. The child app is configured the same way as a standalone project.
+
+### 1. Configure the Child App
+
+Add `:netler` as a dependency and configure the compiler and `.NET` projects in the child app's `mix.exs`, just like you would for a standalone project:
+
+```elixir
+def project do
+  [
+    app: :my_child_app,
+    version: "0.1.0",
+    deps: [{:netler, "~> 0.4"}],
+    compilers: Mix.compilers() ++ [:netler],
+    dotnet_projects: [:my_dotnet_project]
+  ]
+end
+```
+
+### 2. Generate the .NET Project from Inside the Child App
+
+Run `mix netler.new` from within the child app directory:
+
+```bash
+cd apps/my_child_app
+mix netler.new
+```
+
+This creates `dotnet/` and `lib/` files relative to the child app.
+
+### 3. Compile from the Umbrella Root
+
+To trigger `.NET` compilation when running `mix compile` from the umbrella root. No additional dependency declaration is needed, netler is already available through the child app.
+
+
+Netler will find each child app that declares `dotnet_projects` and compile them. The compiled binaries are placed under each child app's `priv/` directory.
+
 ## The Project Structure
 
 ### Embedded .NET Projects
@@ -115,8 +153,9 @@ This is what the generated `Program.cs` looks like:
 using System;
 using System.Threading.Tasks;
 using Netler;
+using Netler.Contracts;
 
-namespace MyDotnetProject
+namespace Cow
 {
     class Program
     {
@@ -131,19 +170,17 @@ namespace MyDotnetProject
                     config.UseClientPid(clientPid);
                     config.UseRoutes((routes) =>
                     {
-                        routes.Add("Add", Add);
+                        // Example routes:
+                        routes.AddTyped("Add", (int a, int b) => a + b);
+                        routes.AddTyped("Subtract", (int a, int b) => a - b);
+                        routes.AddTyped("Multiply", (int a, int b) => a * b);
+                        routes.AddTyped("Divide", (int a, int b) => a / Convert.ToDouble(b));
+
                         // More routes can be added here ...
                     });
                 });
 
             await server.Start();
-        }
-
-        static object Add(params object[] parameters)
-        {
-            var a = Convert.ToInt32(parameters[0]);
-            var b = Convert.ToInt32(parameters[1]);
-            return a + b;
         }
     }
 }
@@ -159,9 +196,10 @@ defmodule MyElixirApplication.MyDotnetProject do
   # This links the module to a specific .NET project
   use Netler, dotnet_project: :my_dotnet_project
 
-  # Use invoke/2 or invoke!/2 to route a message to
-  # an exported .NET method
+  # Use invoke/2 or invoke!/2 to route a message to an exported .NET method
   def add(a, b), do: invoke("Add", [a, b])
+  def subtract(a, b), do: invoke("Subtract", [a, b])
+  def multiply(a, b), do: invoke("Multiply", [a, b])
+  def divide(a, b), do: invoke("Divide", [a, b])
 end
-
 ```
