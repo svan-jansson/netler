@@ -12,6 +12,7 @@ defmodule Netler.Mix.Tasks.Netler.NewTest do
       in_tmp_dir(fn ->
         Mix.shell(Mix.Shell.Process)
         send(self(), {:mix_shell_input, :prompt, "my_dotnet_project"})
+        send(self(), {:mix_shell_input, :prompt, "4"}) # Select net9.0
 
         assert :ok == Mix.Tasks.Netler.New.run([])
 
@@ -47,6 +48,7 @@ defmodule Netler.Mix.Tasks.Netler.NewTest do
       in_tmp_dir(fn ->
         Mix.shell(Mix.Shell.Process)
         send(self(), {:mix_shell_input, :prompt, "my_dotnet_project"})
+        send(self(), {:mix_shell_input, :prompt, "4"}) # Select net9.0
 
         :ok = Mix.Tasks.Netler.New.run([])
 

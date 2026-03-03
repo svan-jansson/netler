@@ -22,14 +22,13 @@ defmodule Mix.Tasks.Netler.New do
       |> String.trim()
       |> Macro.underscore()
 
-    dotnet_version = prompt_dotnet_version()
-
     case dotnet_project do
       "" ->
         log_error("Aborting: No project name given.")
         :error
 
       dotnet_project ->
+        dotnet_version = prompt_dotnet_version()
         project_path = Dotnet.project_path(dotnet_project)
 
         app = Mix.Project.config() |> Keyword.get(:app)
